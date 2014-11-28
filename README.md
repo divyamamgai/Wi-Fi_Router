@@ -3,7 +3,8 @@ Wi-Fi Router
 
 This is a free virtual Wi-Fi Router creating software build on VB.Net
 
-How to build - 
+How to build -
+
 1. The program is built on VB.Net using Visual Basic 2012. Run and Compile the Solution in the folder "Wi-Fi Router" using appropriate version of Visual Basic.
 
 2. .Net 4.5 framework is required for this program to work Normally.
