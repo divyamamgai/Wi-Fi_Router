@@ -13,10 +13,10 @@
     <ROW Property="ARPSYSTEMCOMPONENT" Value="1"/>
     <ROW Property="CTRLS" Value="3"/>
     <ROW Property="Manufacturer" Value="Divya Mamgai"/>
-    <ROW Property="ProductCode" Value="1033:{29DE9EFD-5658-44D4-8AD5-CC4E02369A7B} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{8091A5B0-0B3C-480E-9CD0-62FF373CEE4B} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="Wi-Fi Router"/>
-    <ROW Property="ProductVersion" Value="1.0.1" Type="32"/>
+    <ROW Property="ProductVersion" Value="1.0.2" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND;AI_SETUPEXEPATH;SETUPEXEDIR"/>
     <ROW Property="UpgradeCode" Value="{9CB68B76-84FC-422B-9203-A6D96A9BABCF}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>

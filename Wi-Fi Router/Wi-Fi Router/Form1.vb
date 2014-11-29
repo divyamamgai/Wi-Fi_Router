@@ -230,10 +230,6 @@ Public Class Form1
             .WaitForExit()
         End With
         If StartNetworkProcessOutPut.Contains("The hosted network started.") Then
-            While IsStarted() = 0
-                'Wait till the Network has been started.
-                Button1.Text = "Loading..."
-            End While
             Button1.Text = "Started"
             Button1.Enabled = False
             LoadForm("Network Started")
@@ -264,10 +260,6 @@ Public Class Form1
             .WaitForExit()
         End With
         If StopNetworkProcessOutPut.Contains("The hosted network stopped.") Then
-            While IsStarted() = 1
-                'Wait till the Network has been stopped.
-                Button2.Text = "Loading..."
-            End While
             Button2.Text = "Stopped"
             Button2.Enabled = False
             LoadForm("Network Stopped")
@@ -360,10 +352,12 @@ Public Class Form1
                 If ComboBox1.Text = "0" Then
                     MessageBox.Show("Time interval value cannot be 0!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     ComboBox1.Text = DataVar.TimerInterval
+                    ComboBox2.SelectedIndex = DataVar.TimerUnit
                     WrtieLog(RichTextBox1, "Auto Status Updater Interval Change Error - Zero Value")
                 ElseIf (Integer.Parse(ComboBox1.Text) < 5 And ComboBox2.SelectedIndex = 0) Then
                     MessageBox.Show("Time interval value cannot be less than 5!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error)
                     ComboBox1.Text = DataVar.TimerInterval
+                    ComboBox2.SelectedIndex = DataVar.TimerUnit
                     WrtieLog(RichTextBox1, "Auto Status Updater Interval Change Error - Invalid Value")
                 Else
                     UpdateDataFile()
@@ -373,11 +367,13 @@ Public Class Form1
             Else
                 MessageBox.Show("Please enter a valid numeric time interval value!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error)
                 ComboBox1.Text = DataVar.TimerInterval
+                ComboBox2.SelectedIndex = DataVar.TimerUnit
                 WrtieLog(RichTextBox1, "Auto Status Updater Interval Change Error - Non-Numeric Value")
             End If
         Else
             MessageBox.Show("Please enter a valid time interval value!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error)
             ComboBox1.Text = DataVar.TimerInterval
+            ComboBox2.SelectedIndex = DataVar.TimerUnit
             WrtieLog(RichTextBox1, "Auto Status Updater Interval Change Error - No Value")
         End If
     End Sub
