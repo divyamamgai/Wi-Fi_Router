@@ -1,6 +1,7 @@
 ﻿Imports System.Runtime.Serialization.Formatters.Binary
 Imports System.IO
 Imports System.Text.RegularExpressions
+Imports System.Threading
 
 Public Class Form1
     <Serializable()>
@@ -13,6 +14,7 @@ Public Class Form1
         Dim TimerInterval As Integer
         Dim TimerUnit As Integer
     End Structure
+
     Dim SetupCount As Integer = 0
     Public RunCount As Integer = 0
     Dim RunCountFlag As Integer = 0
@@ -21,8 +23,9 @@ Public Class Form1
     Dim ProgramPath As String = System.IO.Directory.GetCurrentDirectory()
     Dim DataFilePath As String = ProgramPath + "\resources\data.bin"
     Dim DataVar As Data
+
     Private Function UpdateDataFile() As Integer
-        DataVar = New Data With {.RunCount = RunCount, .SetupCount = SetupCount, .UserName = TextBox1.Text, .PassWord = Encode(TextBox2.Text), .TimerEnabled = CheckBox1.CheckState, .TimerInterval = ComboBox1.Text, .TimerUnit = ComboBox2.SelectedIndex}
+        DataVar = New Data With {.RunCount = RunCount, .SetupCount = SetupCount, .UserName = TextBox1.Text, .PassWord = Encode(TextBox2.Text), .TimerEnabled = CheckBox1.CheckState, .TimerInterval = CInt(ComboBox1.Text), .TimerUnit = ComboBox2.SelectedIndex}
         Dim UpdateFormatter As BinaryFormatter = New BinaryFormatter()
         Dim DataFileStream As FileStream
         DataFileStream = File.Open(DataFilePath, FileMode.OpenOrCreate, FileAccess.Write)
@@ -31,14 +34,16 @@ Public Class Form1
         DataFileStream.Close()
         UpdateDataFile = 1
     End Function
+
     Private Function UpdateTimeInterval() As Integer
         Dim TimerInterval As Integer
-        Dim TimerIntervalValue As Integer = ComboBox1.Text
+        Dim TimerIntervalValue As Integer = CInt(ComboBox1.Text)
         Dim TimerIntervalUnit As Integer = ComboBox2.SelectedIndex
-        TimerInterval = TimerIntervalValue * (60 ^ TimerIntervalUnit) * 1000
+        TimerInterval = CInt(TimerIntervalValue * (60 ^ TimerIntervalUnit) * 1000)
         Timer1.Interval = TimerInterval
         UpdateTimeInterval = 1
     End Function
+
     Private Function LoadForm(ByVal LogText As String) As Integer
         Dim InputFormatter As BinaryFormatter = New BinaryFormatter()
         Dim DataFileStream As FileStream
@@ -46,19 +51,19 @@ Public Class Form1
             DataVar = New Data With {.RunCount = 0, .SetupCount = 0, .UserName = "", .PassWord = "", .TimerEnabled = 0, .TimerInterval = 5, .TimerUnit = 0}
             TextBox1.Text = ""
             TextBox2.Text = ""
-            ComboBox1.Text = 5
+            ComboBox1.Text = CStr(5)
             ComboBox2.SelectedIndex = 0
             CheckBox1.CheckState = 0
         Else
             DataFileStream = File.Open(DataFilePath, FileMode.Open, FileAccess.Read)
-            DataVar = InputFormatter.Deserialize(DataFileStream)
+            DataVar = CType(InputFormatter.Deserialize(DataFileStream), Global.Wi_Fi_Router.Form1.Data)
             RunCount = DataVar.RunCount
             SetupCount = DataVar.SetupCount
             TextBox1.Text = DataVar.UserName
             TextBox2.Text = Decode(DataVar.PassWord)
-            ComboBox1.Text = DataVar.TimerInterval
+            ComboBox1.Text = CStr(DataVar.TimerInterval)
             ComboBox2.SelectedIndex = DataVar.TimerUnit
-            CheckBox1.CheckState = DataVar.TimerEnabled
+            CheckBox1.CheckState = CType(DataVar.TimerEnabled, CheckState)
             DataFileStream.Close()
         End If
         If RunCountFlag = 0 Then
@@ -137,15 +142,66 @@ Public Class Form1
         WrtieLog(RichTextBox1, LogText)
         LoadForm = 1
     End Function
-    Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
-        Form3.Show()
+
+    Private Sub StopNetwork()
+        Button2.Text = "Loading..."
+        Button2.Enabled = False
+        Dim StopNetworkProcessOutPut As String
+        Dim StopNetworkProcess As Process = New Process
+        With StopNetworkProcess
+            .StartInfo.CreateNoWindow = True
+            .StartInfo.RedirectStandardOutput = True
+            .StartInfo.UseShellExecute = False
+            .StartInfo.FileName = "cmd.exe"
+            .StartInfo.Arguments = "/c netsh wlan stop hostednetwork"
+            .Start()
+            StopNetworkProcessOutPut = .StandardOutput.ReadToEnd
+            .WaitForExit()
+        End With
+        If StopNetworkProcessOutPut.Contains("The hosted network stopped.") Then
+            Button2.Text = "Stopped"
+            Button2.Enabled = False
+            LoadForm("Network Stopped")
+        Else
+            MessageBox.Show(StopNetworkProcessOutPut, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Button2.Text = "Stop"
+            Button2.Enabled = True
+            LoadForm("Network Stop Error - Internal Error!")
+        End If
     End Sub
 
-    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
-        Form2.Show()
+    Private Sub StartNetwork()
+        Button1.Text = "Loading..."
+        Button1.Enabled = False
+        Dim StartNetworkProcessOutPut As String
+        Dim StartNetworkProcess As Process = New Process
+        With StartNetworkProcess
+            .StartInfo.CreateNoWindow = True
+            .StartInfo.RedirectStandardOutput = True
+            .StartInfo.UseShellExecute = False
+            .StartInfo.FileName = "cmd.exe"
+            .StartInfo.Arguments = "/c netsh wlan start hostednetwork"
+            .Start()
+            StartNetworkProcessOutPut = .StandardOutput.ReadToEnd
+            .WaitForExit()
+        End With
+        If StartNetworkProcessOutPut.Contains("The hosted network started.") Then
+            Button1.Text = "Started"
+            Button1.Enabled = False
+            LoadForm("Network Started")
+        Else
+            Dim ErrorMsg As String = StartNetworkProcessOutPut
+            If StartNetworkProcessOutPut.Contains("The wireless local area network interface is powered down and doesn't support the requested operation.") Then
+                ErrorMsg = ErrorMsg + "Please start Wi-Fi of your machine."
+            End If
+            MessageBox.Show(ErrorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            Button1.Text = "Start"
+            Button1.Enabled = True
+            LoadForm("Network Start Error - Internal Error!")
+        End If
     End Sub
 
-    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+    Private Sub SetupNetwork()
         Button3.Text = "Loading..."
         Button3.Enabled = False
         If ((TextBox1.Text = "") And (TextBox2.Text <> "")) Then
@@ -214,61 +270,24 @@ Public Class Form1
         End If
     End Sub
 
-    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
-        Button1.Text = "Loading..."
-        Button1.Enabled = False
-        Dim StartNetworkProcessOutPut As String
-        Dim StartNetworkProcess As Process = New Process
-        With StartNetworkProcess
-            .StartInfo.CreateNoWindow = True
-            .StartInfo.RedirectStandardOutput = True
-            .StartInfo.UseShellExecute = False
-            .StartInfo.FileName = "cmd.exe"
-            .StartInfo.Arguments = "/c netsh wlan start hostednetwork"
-            .Start()
-            StartNetworkProcessOutPut = .StandardOutput.ReadToEnd
-            .WaitForExit()
-        End With
-        If StartNetworkProcessOutPut.Contains("The hosted network started.") Then
-            Button1.Text = "Started"
-            Button1.Enabled = False
-            LoadForm("Network Started")
-        Else
-            Dim ErrorMsg As String = StartNetworkProcessOutPut
-            If StartNetworkProcessOutPut.Contains("The wireless local area network interface is powered down and doesn't support the requested operation.") Then
-                ErrorMsg = ErrorMsg + "Please start Wi-Fi of your machine."
-            End If
-            MessageBox.Show(ErrorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Button1.Text = "Start"
-            Button1.Enabled = True
-            LoadForm("Network Start Error - Internal Error!")
-        End If
+    Private Sub Button5_Click(sender As Object, e As EventArgs) Handles Button5.Click
+        Form3.Show()
     End Sub
+
+    Private Sub Button6_Click(sender As Object, e As EventArgs) Handles Button6.Click
+        Form2.Show()
+    End Sub
+
+    Private Sub Button3_Click(sender As Object, e As EventArgs) Handles Button3.Click
+        SetupNetwork()
+    End Sub
+
+    Private Sub Button1_Click(sender As Object, e As EventArgs) Handles Button1.Click
+        StartNetwork()
+    End Sub
+
     Private Sub Button2_Click(sender As Object, e As EventArgs) Handles Button2.Click
-        Button2.Text = "Loading..."
-        Button2.Enabled = False
-        Dim StopNetworkProcessOutPut As String
-        Dim StopNetworkProcess As Process = New Process
-        With StopNetworkProcess
-            .StartInfo.CreateNoWindow = True
-            .StartInfo.RedirectStandardOutput = True
-            .StartInfo.UseShellExecute = False
-            .StartInfo.FileName = "cmd.exe"
-            .StartInfo.Arguments = "/c netsh wlan stop hostednetwork"
-            .Start()
-            StopNetworkProcessOutPut = .StandardOutput.ReadToEnd
-            .WaitForExit()
-        End With
-        If StopNetworkProcessOutPut.Contains("The hosted network stopped.") Then
-            Button2.Text = "Stopped"
-            Button2.Enabled = False
-            LoadForm("Network Stopped")
-        Else
-            MessageBox.Show(StopNetworkProcessOutPut, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            Button2.Text = "Stop"
-            Button2.Enabled = True
-            LoadForm("Network Stop Error - Internal Error!")
-        End If
+        StopNetwork()
     End Sub
 
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -294,10 +313,10 @@ Public Class Form1
     Private Sub Button7_Click(sender As Object, e As EventArgs) Handles Button7.Click
         Dim PassWordChar As String = TextBox2.PasswordChar
         If PassWordChar = "•" Then
-            TextBox2.PasswordChar = ""
+            TextBox2.PasswordChar = CChar("")
             Button7.Text = "Hide"
         Else
-            TextBox2.PasswordChar = "•"
+            TextBox2.PasswordChar = CChar("•")
             Button7.Text = "Show"
         End If
     End Sub
@@ -351,12 +370,12 @@ Public Class Form1
             If Regex.IsMatch(ComboBox1.Text, "^[0-9 ]+$") Then
                 If ComboBox1.Text = "0" Then
                     MessageBox.Show("Time interval value cannot be 0!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                    ComboBox1.Text = DataVar.TimerInterval
+                    ComboBox1.Text = CStr(DataVar.TimerInterval)
                     ComboBox2.SelectedIndex = DataVar.TimerUnit
                     WrtieLog(RichTextBox1, "Auto Status Updater Interval Change Error - Zero Value")
                 ElseIf (Integer.Parse(ComboBox1.Text) < 5 And ComboBox2.SelectedIndex = 0) Then
                     MessageBox.Show("Time interval value cannot be less than 5!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                    ComboBox1.Text = DataVar.TimerInterval
+                    ComboBox1.Text = CStr(DataVar.TimerInterval)
                     ComboBox2.SelectedIndex = DataVar.TimerUnit
                     WrtieLog(RichTextBox1, "Auto Status Updater Interval Change Error - Invalid Value")
                 Else
@@ -366,13 +385,13 @@ Public Class Form1
                 End If
             Else
                 MessageBox.Show("Please enter a valid numeric time interval value!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error)
-                ComboBox1.Text = DataVar.TimerInterval
+                ComboBox1.Text = CStr(DataVar.TimerInterval)
                 ComboBox2.SelectedIndex = DataVar.TimerUnit
                 WrtieLog(RichTextBox1, "Auto Status Updater Interval Change Error - Non-Numeric Value")
             End If
         Else
             MessageBox.Show("Please enter a valid time interval value!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error)
-            ComboBox1.Text = DataVar.TimerInterval
+            ComboBox1.Text = CStr(DataVar.TimerInterval)
             ComboBox2.SelectedIndex = DataVar.TimerUnit
             WrtieLog(RichTextBox1, "Auto Status Updater Interval Change Error - No Value")
         End If
@@ -383,4 +402,5 @@ Public Class Form1
         Button9.Enabled = False
         Form4.Show()
     End Sub
+
 End Class

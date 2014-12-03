@@ -1,4 +1,5 @@
-﻿Module Module1
+﻿Option Strict Off
+Module Module1
     Public Function WrtieLog(TextBoxObject As Object, ByVal InputString As String) As Integer
         If TextBoxObject.Text = "" Then
             TextBoxObject.Text = "[" + TimeOfDay.ToString("h:mm:ss tt") + "] " + InputString
@@ -31,7 +32,7 @@
             HostedNetworkStatus = .StandardOutput.ReadToEnd
             .WaitForExit()
         End With
-        For Each HostedNetworkStatusLine As String In HostedNetworkStatus.Split(vbLf)
+        For Each HostedNetworkStatusLine As String In HostedNetworkStatus.Split(CChar(vbLf))
             If HostedNetworkStatusLine.Contains("Status                 : Started") Then
                 IsStartedFlag = 1
                 Exit For
@@ -53,7 +54,7 @@
             NetworkDriverOutput = .StandardOutput.ReadToEnd
             .WaitForExit()
         End With
-        For Each NetworkDriverOutputLine As String In NetworkDriverOutput.Split(vbLf)
+        For Each NetworkDriverOutputLine As String In NetworkDriverOutput.Split(CChar(vbLf))
             If NetworkDriverOutputLine.Contains("Hosted network supported  : Yes") Then
                 IsSupportedFlag = 1
                 Exit For
@@ -63,7 +64,7 @@
     End Function
     Public Function GetNumberOfClients() As Integer
         Dim NumberOfClients As Integer
-        If IsStarted() Then
+        If CBool(IsStarted()) Then
             Dim Line As Integer = 1
             Dim LineMax As Integer = 16
             Dim GetNumberOfClientsString As String
@@ -78,7 +79,7 @@
                 GetNumberOfClientsString = .StandardOutput.ReadToEnd
                 .WaitForExit()
             End With
-            For Each SetNetworkStatusStringLine As String In GetNumberOfClientsString.Split(vbLf)
+            For Each SetNetworkStatusStringLine As String In GetNumberOfClientsString.Split(CChar(vbLf))
                 If Line > LineMax Then
                     Exit For
                 End If
@@ -110,7 +111,7 @@
             GetClientString = .StandardOutput.ReadToEnd
             .WaitForExit()
         End With
-        For Each GetClientStringLine As String In GetClientString.Split(vbLf)
+        For Each GetClientStringLine As String In GetClientString.Split(CChar(vbLf))
             If Line > LineMax Then
                 Index = Index + 1
                 If Index > GetNumberOfClients() Then
@@ -167,7 +168,7 @@
         For Count = 0 To NetworkStatusControls.GetUpperBound(0)
             NetworkStatusControls(Count).Text = "NULL"
         Next
-        For Each SetNetworkStatusStringLine As String In SetNetworkStatusString.Split(vbLf)
+        For Each SetNetworkStatusStringLine As String In SetNetworkStatusString.Split(CChar(vbLf))
             If Line > LineMax Then
                 Exit For
             End If
