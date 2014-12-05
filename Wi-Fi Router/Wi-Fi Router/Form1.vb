@@ -226,7 +226,7 @@ Public Class Form1
             Button3.Enabled = True
             LoadForm("Network Setup Aborted - No User Name and Password")
         Else
-            If Len(TextBox1.Text) < 8 Or Len(TextBox2.Text) > 63 Then
+            If Len(TextBox2.Text) < 8 Or Len(TextBox2.Text) > 63 Then
                 Dim AboutMsg = "Please provide Password with minimum 8 characters and maximum 63 characters!"
                 Dim AboutTitle = "Wi-Fi Router - Alert!"
                 MsgBox(AboutMsg, , AboutTitle)

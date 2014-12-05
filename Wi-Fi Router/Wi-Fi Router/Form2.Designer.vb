@@ -142,7 +142,7 @@ Partial Class Form2
         Me.Label4.AutoSize = True
         Me.Label4.BackColor = System.Drawing.Color.Transparent
         Me.Label4.Font = New System.Drawing.Font("Calibri", 27.75!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Label4.Location = New System.Drawing.Point(198, 208)
+        Me.Label4.Location = New System.Drawing.Point(211, 213)
         Me.Label4.Name = "Label4"
         Me.Label4.Size = New System.Drawing.Size(162, 45)
         Me.Label4.TabIndex = 11

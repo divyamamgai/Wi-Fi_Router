@@ -39,21 +39,21 @@ Public Class Form2
         PreviousButton = 1
     End Function
     Private Sub Form2_Load(sender As Object, e As EventArgs) Handles MyBase.Load
-        Dim CustomFontRes As New PrivateFontCollection
-        CustomFontRes.AddFontFile(ProgramPath + "\resources\Rockwell.ttf")
-        Dim CustomFontBoldRes As New PrivateFontCollection
-        CustomFontBoldRes.AddFontFile(ProgramPath + "\resources\RockwellBold.ttf")
-        Dim CustomFont28B As Font = New Font(CustomFontBoldRes.Families(0), 28, FontStyle.Bold)
-        Dim CustomFont14B As Font = New Font(CustomFontBoldRes.Families(0), 14, FontStyle.Bold)
-        Dim CustomFont14R As Font = New Font(CustomFontRes.Families(0), 14, FontStyle.Regular)
-        Dim CustomFont12B As Font = New Font(CustomFontBoldRes.Families(0), 12, FontStyle.Bold)
-        Label1.Font = CustomFont28B
-        Label2.Font = CustomFont14B
-        Label3.Font = CustomFont14R
-        Label4.Font = CustomFont28B
-        Button1.Font = CustomFont12B
-        Button2.Font = CustomFont12B
-        Button3.Font = CustomFont12B
+        'Dim CustomFontRes As New PrivateFontCollection
+        'CustomFontRes.AddFontFile(ProgramPath + "\resources\Rockwell.ttf")
+        'Dim CustomFontBoldRes As New PrivateFontCollection
+        'CustomFontBoldRes.AddFontFile(ProgramPath + "\resources\RockwellBold.ttf")
+        'Dim CustomFont28B As Font = New Font(CustomFontBoldRes.Families(0), 28, FontStyle.Bold)
+        'Dim CustomFont14B As Font = New Font(CustomFontBoldRes.Families(0), 14, FontStyle.Bold)
+        'Dim CustomFont14R As Font = New Font(CustomFontRes.Families(0), 14, FontStyle.Regular)
+        'Dim CustomFont12B As Font = New Font(CustomFontBoldRes.Families(0), 12, FontStyle.Bold)
+        'Label1.Font = CustomFont28B
+        'Label2.Font = CustomFont14B
+        'Label3.Font = CustomFont14R
+        'Label4.Font = CustomFont28B
+        'Button1.Font = CustomFont12B
+        'Button2.Font = CustomFont12B
+        'Button3.Font = CustomFont12B
         StepStrings = {
             "Right-Click the Network Icon at the bottom bar.",
             "Left-Click ""Open Network and Sharing Center"".",
